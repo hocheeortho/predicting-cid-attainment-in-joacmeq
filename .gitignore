@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+.DS_Store
+
+# Patient-level source data must never be committed
+*.xls
+*.xlsx
+*.xlsm
+*.csv
+
+# Local model artifacts; commit only a reviewed release bundle intentionally
+models/*.joblib
+models/*.pkl
+models/*.pickle
+!models/.gitkeep
