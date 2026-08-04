@@ -60,41 +60,6 @@ with st.expander("Model information"):
 
 st.success("The prediction model was loaded successfully.")
 
-st.header("Patient Information")
-
-age = st.number_input(
-    "Age",
-    min_value=10,
-    max_value=100,
-    value=70
-)
-
-sex = st.selectbox(
-    "Sex",
-    ["Male", "Female"]
-)
-
-diagnosis = st.selectbox(
-    "Diagnosis",
-    [
-        "CSM",
-        "CSR / Disc herniation",
-        "OPLL / OLF",
-        "Other"
-    ]
-)
-
-operation = st.selectbox(
-    "Surgical procedure",
-    [
-        "Laminoplasty",
-        "Posterior spinal fusion (PSF)",
-        "Anterior spinal fusion (ASF)",
-        "Combined ASF and PSF",
-        "Other"
-    ]
-)
-
 # ------------------------------------------------
 # Input utilities
 # ------------------------------------------------
@@ -123,7 +88,20 @@ def optional_number_input(
     except ValueError:
         st.warning(f"Please enter a numeric value for '{label}'.")
         return None
+def optional_choice_input(label, options, key):
+    """
+    Return an integer response or None when not entered.
+    """
+    selected = st.selectbox(
+        label,
+        options=["Not entered"] + options,
+        key=key,
+    )
 
+    if selected == "Not entered":
+        return None
+
+    return int(selected)
 
 # ------------------------------------------------
 # Input form
@@ -136,7 +114,10 @@ input_values = {}
 # ================================================================
 # 1. Patient characteristics
 # ================================================================
-with st.expander("1. Patient characteristics", expanded=True):
+with st.expander(
+    "1. Patient characteristics",
+    expanded=True,
+):
 
     age = optional_number_input(
         "Age (years)",
@@ -182,32 +163,181 @@ with st.expander("1. Patient characteristics", expanded=True):
 # ================================================================
 # 2. JOACMEQ item responses
 # ================================================================
-JOACMEQ_ITEMS = [
-    "Q1-1", "Q1-2", "Q1-3", "Q1-4",
-    "Q2-1", "Q2-2", "Q2-3",
-    "Q3-1", "Q3-2", "Q3-3", "Q3-4", "Q3-5",
-    "Q4-1", "Q4-2", "Q4-3", "Q4-4",
-    "Q5-1", "Q5-2", "Q5-3", "Q5-4",
-    "Q5-5", "Q5-6", "Q5-7", "Q5-8",
-]
+JOACMEQ_RESPONSE_OPTIONS = {
+    "Q1-1": [1, 2, 3],
+    "Q1-2": [1, 2, 3],
+    "Q1-3": [1, 2, 3],
+    "Q1-4": [1, 2, 3],
+
+    "Q2-1": [1, 2, 3],
+    "Q2-2": [1, 2, 3],
+    "Q2-3": [1, 2, 3, 4],
+
+    "Q3-1": [1, 2, 3, 4, 5],
+    "Q3-2": [1, 2, 3],
+    "Q3-3": [1, 2, 3],
+    "Q3-4": [1, 2, 3],
+    "Q3-5": [1, 2, 3],
+
+    "Q4-1": [1, 2, 3, 4, 5],
+    "Q4-2": [1, 2, 3],
+    "Q4-3": [1, 2, 3],
+    "Q4-4": [1, 2, 3],
+
+    "Q5-1": [1, 2, 3, 4, 5],
+    "Q5-2": [1, 2, 3, 4, 5],
+    "Q5-3": [1, 2, 3, 4, 5],
+    "Q5-4": [1, 2, 3, 4, 5],
+    "Q5-5": [1, 2, 3, 4, 5],
+    "Q5-6": [1, 2, 3, 4, 5],
+    "Q5-7": [1, 2, 3, 4, 5],
+    "Q5-8": [1, 2, 3, 4, 5],
+}
+
 
 with st.expander("2. JOACMEQ item responses"):
 
     st.caption(
-        "Enter each response using the same numeric coding as the "
-        "original JOACMEQ dataset. Fields may be left blank."
+        "Select the response number for each JOACMEQ item. "
+        "Domain scores are calculated automatically."
     )
 
     columns = st.columns(3)
 
-    for index, item in enumerate(JOACMEQ_ITEMS):
+    for index, (item, options) in enumerate(
+        JOACMEQ_RESPONSE_OPTIONS.items()
+    ):
         with columns[index % 3]:
-            input_values[item] = optional_number_input(
-                item,
+            input_values[item] = optional_choice_input(
+                label=item,
+                options=options,
                 key=f"joacmeq_{item}",
             )
+def calculate_joacmeq_domain_scores(values):
+    """
+    Calculate the five JOACMEQ domain scores from item responses.
+
+    A domain score is returned as None when one or more required
+    responses for that domain are missing.
+    """
+
+    domain_definitions = {
+        "Cervical spine function": {
+            "weights": {
+                "Q1-1": 20,
+                "Q1-2": 10,
+                "Q1-3": 15,
+                "Q1-4": 5,
+            },
+            "minimum": 50,
+            "range": 100,
+        },
+
+        "Upper extremity function": {
+            "weights": {
+                "Q1-4": 5,
+                "Q2-1": 10,
+                "Q2-2": 15,
+                "Q2-3": 5,
+                "Q3-1": 5,
+            },
+            "minimum": 40,
+            "range": 95,
+        },
+
+        "Lower extremity function": {
+            "weights": {
+                "Q3-1": 10,
+                "Q3-2": 10,
+                "Q3-3": 15,
+                "Q3-4": 5,
+                "Q3-5": 5,
+            },
+            "minimum": 45,
+            "range": 110,
+        },
+
+        "Bladder function": {
+            "weights": {
+                "Q4-1": 10,
+                "Q4-2": 5,
+                "Q4-3": 10,
+                "Q4-4": 5,
+            },
+            "minimum": 30,
+            "range": 80,
+        },
+
+        "Quality of life": {
+            "weights": {
+                "Q5-1": 3,
+                "Q5-2": 2,
+                "Q5-3": 2,
+                "Q5-4": 5,
+                "Q5-5": 4,
+                "Q5-6": 3,
+                "Q5-7": 2,
+                "Q5-8": 3,
+            },
+            "minimum": 24,
+            "range": 96,
+        },
+    }
+
+    calculated_scores = {}
+
+    for domain_name, definition in domain_definitions.items():
+        required_items = definition["weights"]
+
+        # Do not calculate the domain when a required item is missing
+        if any(values.get(item) is None for item in required_items):
+            calculated_scores[domain_name] = None
+            continue
+
+        weighted_sum = sum(
+            float(values[item]) * weight
+            for item, weight in required_items.items()
+        )
+
+        score = (
+            weighted_sum - definition["minimum"]
+        ) * 100 / definition["range"]
+
+        # Protect against values outside the theoretical range
+        score = float(np.clip(score, 0.0, 100.0))
+
+        calculated_scores[domain_name] = score
+
+    return calculated_scores
 
 
+domain_scores = calculate_joacmeq_domain_scores(input_values)
+
+# Add the automatically calculated scores to the model input
+input_values.update(domain_scores)
+
+with st.expander(
+    "Calculated JOACMEQ domain scores",
+    expanded=True,
+):
+    score_columns = st.columns(3)
+
+    for index, (domain_name, score) in enumerate(
+        domain_scores.items()
+    ):
+        with score_columns[index % 3]:
+            if score is None:
+                st.metric(
+                    label=domain_name,
+                    value="Not calculated",
+                )
+                st.caption("One or more required items are missing.")
+            else:
+                st.metric(
+                    label=domain_name,
+                    value=f"{score:.1f}",
+                )
+                
 # ================================================================
 # 3. VAS scores
 # ================================================================
@@ -218,7 +348,8 @@ VAS_FEATURES = [
     "VAS pain or numbness from chest to toe",
 ]
 
-with st.expander("3. Visual analog scale scores"):
+with st.expander("3. Visual analog scale scores",
+    expanded=True,):
 
     st.caption(
         "Enter the preoperative VAS scores using the same scale as "
@@ -231,38 +362,8 @@ with st.expander("3. Visual analog scale scores"):
             key=f"vas_{feature}",
         )
 
-
 # ================================================================
-# 4. JOACMEQ domain scores
-# ================================================================
-DOMAIN_FEATURES = [
-    "Cervical spine function",
-    "Upper extremity function",
-    "Lower extremity function",
-    "Bladder function",
-    "Quality of life",
-]
-
-with st.expander("4. JOACMEQ domain scores"):
-
-    st.caption(
-        "Enter preoperative domain scores from 0 to 100. "
-        "Fields may be left blank."
-    )
-
-    columns = st.columns(2)
-
-    for index, feature in enumerate(DOMAIN_FEATURES):
-        with columns[index % 2]:
-            input_values[feature] = optional_number_input(
-                feature,
-                key=f"domain_{feature}",
-                help_text="Expected range: 0–100",
-            )
-
-
-# ================================================================
-# 5. EQ-5D
+# 4. EQ-5D
 # ================================================================
 EQ5D_FEATURES = [
     "EQ-5D mobility",
@@ -273,7 +374,8 @@ EQ5D_FEATURES = [
     "EQ-5D value",
 ]
 
-with st.expander("5. EQ-5D"):
+with st.expander("4. EQ-5D",
+    expanded=True,):
 
     st.caption(
         "Enter the five EQ-5D-5L item responses and the index value."
@@ -290,14 +392,15 @@ with st.expander("5. EQ-5D"):
 
 
 # ================================================================
-# 6. SF-8
+# 5. SF-8
 # ================================================================
 SF8_FEATURES = [
     "SF-8-1", "SF-8-2", "SF-8-3", "SF-8-4",
     "SF-8-5", "SF-8-6", "SF-8-7", "SF-8-8",
 ]
 
-with st.expander("6. SF-8 responses"):
+with st.expander("5. SF-8 responses",
+    expanded=True,):
 
     st.caption(
         "Enter each SF-8 response using the same numeric coding as "
