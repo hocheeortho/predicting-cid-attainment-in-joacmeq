@@ -66,4 +66,4 @@ st.write(bundle.keys())
 
 st.write(bundle["targets"])
 
-st.write(bundle["feature_names"])
+st.write(bundle["raw_feature_names"])
