@@ -1,30 +1,54 @@
 # Predicting CID Attainment in JOACMEQ
 
-A research-use web application for estimating the probability of clinically important difference (CID) attainment after cervical spine surgery from preoperative JOACMEQ-related variables.
+This repository contains a web application for estimating the probability of achieving a clinically important difference (CID) after cervical spine surgery.
 
-## Scope
+The application provides individualized probabilities for five JOACMEQ domains and four visual analog scale outcomes.
 
-- **Training cohort:** DAIRO + JCHO
-- **External validation cohort:** HANDAI
-- **Interface language:** English
-- **Outputs:** Predicted CID-attainment probabilities for five JOACMEQ domains and four VAS outcomes
-- **Primary model:** Stacking ensemble using LightGBM, XGBoost, Random Forest, support vector machine, elastic-net logistic regression, and logistic regression
+## Model
 
-## Missing values
+The prediction system uses six base models:
 
-Missing inputs are allowed. LightGBM and XGBoost use their native missing-value handling. Random Forest, support vector machine, elastic-net logistic regression, and logistic regression use medians estimated from the development cohort.
+- LightGBM
+- XGBoost
+- Random Forest
+- Support Vector Machine
+- Elastic-net logistic regression
+- Logistic regression
 
-## Repository status
+The outputs of the six models are combined using an L2-regularized logistic regression stacking model.
 
-The application scaffold is included, but trained model artifacts are not yet committed. The app will become operational after the exported model bundle is added to `models/ensemble_bundle.joblib`.
+The final models were trained using the development cohort from DAIRO and JCHO.
 
-## Local use
+## Application
 
-```bash
-pip install -r requirements.txt
-streamlit run app.py
-```
+The web application accepts preoperative patient characteristics and questionnaire data, including:
 
-## Research-use notice
+- Age
+- Sex
+- Diagnosis
+- Surgical procedure
+- JOACMEQ item responses
+- JOACMEQ domain scores
+- Visual analog scale scores
+- EQ-5D responses
+- SF-8 responses
 
-This software is provided for research and academic demonstration only. It is not a medical device and must not be used as the sole basis for clinical decision-making. No patient-level source data are included in this public repository.
+Missing predictor values are allowed.
+
+## Outcomes
+
+The application estimates CID attainment probabilities for:
+
+1. Cervical spine function
+2. Upper extremity function
+3. Lower extremity function
+4. Bladder function
+5. Quality of life
+6. Pain or stiffness in the neck
+7. Tightness in the chest
+8. Pain or numbness in the arms or hands
+9. Pain or numbness from the chest to the toes
+
+## Disclaimer
+
+This application is intended for research and informational purposes only. It is not intended to replace clinical judgment or provide a definitive prediction for an individual patient.
