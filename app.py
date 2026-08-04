@@ -58,3 +58,12 @@ with st.expander("Model information"):
 
 
 st.success("The prediction model was loaded successfully.")
+
+
+st.subheader("Bundle information")
+
+st.write(bundle.keys())
+
+st.write(bundle["targets"])
+
+st.write(bundle["feature_names"])
