@@ -373,25 +373,35 @@ EQ5D_ITEM_OPTIONS = {
     "EQ-5D anxiety or depression": [1, 2, 3],
 }
 
-with st.expander("4. EQ-5D",
-    expanded=True,):
+with st.expander("4. EQ-5D"):
 
     st.caption(
-        "Enter the five EQ-5D-5L item responses."
+        "Select the response for each EQ-5D item. "
+        "The EQ-5D index value is optional."
     )
 
-    columns = st.columns(2)
+    cols = st.columns(2)
 
-    for index, (feature, options) in enumerate(
-        EQ5D_ITEM_OPTIONS.items()
-    ):
-        with columns[index % 2]:
+    for i, (feature, options) in enumerate(EQ5D_ITEM_OPTIONS.items()):
+        with cols[i % 2]:
             input_values[feature] = optional_choice_input(
-                label=feature,
-                options=options,
+                feature,
+                options,
                 key=f"eq5d_{feature}",
             )
 
+    input_values["EQ-5D value"] = optional_number_input(
+        "EQ-5D index value (optional)",
+        key="eq5d_value",
+        help_text=(
+            "Enter the calculated EQ-5D index value if available. "
+            "If left blank, the model will handle it as a missing value."
+        ),
+    )
+    st.info(
+        "The EQ-5D index value is optional. "
+        "If left blank, the prediction model will automatically treat it as a missing value."
+    )
 # ================================================================
 # 5. SF-8 responses
 # ================================================================
