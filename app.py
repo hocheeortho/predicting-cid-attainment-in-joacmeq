@@ -59,11 +59,37 @@ with st.expander("Model information"):
 
 st.success("The prediction model was loaded successfully.")
 
+st.header("Patient Information")
 
-st.subheader("Bundle information")
+age = st.number_input(
+    "Age",
+    min_value=10,
+    max_value=100,
+    value=70
+)
 
-st.write(bundle.keys())
+sex = st.selectbox(
+    "Sex",
+    ["Male", "Female"]
+)
 
-st.write(bundle["targets"])
+diagnosis = st.selectbox(
+    "Diagnosis",
+    [
+        "CSM",
+        "CSR / Disc herniation",
+        "OPLL / OLF",
+        "Other"
+    ]
+)
 
-st.write(bundle["raw_feature_names"])
+operation = st.selectbox(
+    "Surgical procedure",
+    [
+        "Laminoplasty",
+        "Posterior spinal fusion (PSF)",
+        "Anterior spinal fusion (ASF)",
+        "Combined ASF and PSF",
+        "Other"
+    ]
+)
