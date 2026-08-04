@@ -455,7 +455,7 @@ def prepare_input_dataframe(input_dict):
     same preprocessing applied during model training.
     """
     row = {}
-
+    row["EQ-5D value"] = np.nan
     for feature in bundle["raw_feature_names"]:
         value = input_dict.get(feature)
 
