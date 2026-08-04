@@ -371,14 +371,13 @@ EQ5D_FEATURES = [
     "EQ-5D usual activities",
     "EQ-5D pain or discomfort",
     "EQ-5D anxiety or depression",
-    "EQ-5D value",
 ]
 
 with st.expander("4. EQ-5D",
     expanded=True,):
 
     st.caption(
-        "Enter the five EQ-5D-5L item responses and the index value."
+        "Enter the five EQ-5D-5L item responses."
     )
 
     columns = st.columns(2)
