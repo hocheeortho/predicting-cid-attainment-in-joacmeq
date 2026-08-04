@@ -365,13 +365,13 @@ with st.expander("3. Visual analog scale scores",
 # ================================================================
 # 4. EQ-5D
 # ================================================================
-EQ5D_FEATURES = [
-    "EQ-5D mobility",
-    "EQ-5D self-care",
-    "EQ-5D usual activities",
-    "EQ-5D pain or discomfort",
-    "EQ-5D anxiety or depression",
-]
+EQ5D_ITEM_OPTIONS = {
+    "EQ-5D mobility": [1, 2, 3],
+    "EQ-5D self-care": [1, 2, 3],
+    "EQ-5D usual activities": [1, 2, 3],
+    "EQ-5D pain or discomfort": [1, 2, 3],
+    "EQ-5D anxiety or depression": [1, 2, 3],
+}
 
 with st.expander("4. EQ-5D",
     expanded=True,):
@@ -382,36 +382,45 @@ with st.expander("4. EQ-5D",
 
     columns = st.columns(2)
 
-    for index, feature in enumerate(EQ5D_FEATURES):
+    for index, (feature, options) in enumerate(
+        EQ5D_ITEM_OPTIONS.items()
+    ):
         with columns[index % 2]:
-            input_values[feature] = optional_number_input(
-                feature,
+            input_values[feature] = optional_choice_input(
+                label=feature,
+                options=options,
                 key=f"eq5d_{feature}",
             )
 
-
 # ================================================================
-# 5. SF-8
+# 5. SF-8 responses
 # ================================================================
-SF8_FEATURES = [
-    "SF-8-1", "SF-8-2", "SF-8-3", "SF-8-4",
-    "SF-8-5", "SF-8-6", "SF-8-7", "SF-8-8",
-]
+SF8_RESPONSE_OPTIONS = {
+    "SF-8-1": [1, 2, 3, 4, 5, 6],
+    "SF-8-2": [1, 2, 3, 4, 5],
+    "SF-8-3": [1, 2, 3, 4, 5],
+    "SF-8-4": [1, 2, 3, 4, 5, 6],
+    "SF-8-5": [1, 2, 3, 4, 5],
+    "SF-8-6": [1, 2, 3, 4, 5],
+    "SF-8-7": [1, 2, 3, 4, 5],
+    "SF-8-8": [1, 2, 3, 4, 5],
+}
 
-with st.expander("5. SF-8 responses",
-    expanded=True,):
+with st.expander("5. SF-8 responses"):
 
     st.caption(
-        "Enter each SF-8 response using the same numeric coding as "
-        "the development dataset."
+        "Select the response number for each SF-8 item."
     )
 
     columns = st.columns(2)
 
-    for index, feature in enumerate(SF8_FEATURES):
+    for index, (feature, options) in enumerate(
+        SF8_RESPONSE_OPTIONS.items()
+    ):
         with columns[index % 2]:
-            input_values[feature] = optional_number_input(
-                feature,
+            input_values[feature] = optional_choice_input(
+                label=feature,
+                options=options,
                 key=f"sf8_{feature}",
             )
 
